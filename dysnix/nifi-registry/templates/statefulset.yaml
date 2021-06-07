@@ -35,10 +35,10 @@ spec:
             - sh
             - -cex
             - |
+              cp --dereference /sshdir/known_hosts /sshdir/config /ssh-key/id_rsa /root/.ssh
               git clone $(NIFI_REGISTRY_GIT_URL) "/tmp/flow_storage" || git -C "/tmp/flow_storage" pull
-              cp --dereference /ssh/id_rsa /ssh-dest/
 
-              chown -R 1000:1000 /tmp/flow_storage /ssh-dest
+              chown -R 1000:1000 /tmp/flow_storage /root/.ssh
           env:
             - name: NIFI_REGISTRY_GIT_URL
               value: {{ .Values.flowProvider.git.url }}          
@@ -46,19 +46,22 @@ spec:
               value: {{ .Values.flowProvider.git.user }}          
             - name: NIFI_REGISTRY_GIT_PASSWORD
               value: {{ .Values.flowProvider.git.password }}
+          {{- if .Values.extraEnvs }}
+{{ toYaml .Values.extraEnvs | indent 12 }}
+          {{- end }}
           volumeMounts:
             - name: "flow-storage"
               mountPath: /tmp
             {{- if .Values.ssh.known_hosts }}
             - name: sshdir
-              mountPath: /root/.ssh
+              mountPath: /sshdir
               readOnly: true
             {{- end }}
             - name: git-key
-              mountPath: /ssh
+              mountPath: /ssh-key
               readOnly: true
             - name: git-key-fixed
-              mountPath: /ssh-dest
+              mountPath: /root/.ssh
         {{- end }}
         {{- if .Values.persistence.enabled }}
         - name: take-data-dir-ownership
@@ -117,9 +120,9 @@ spec:
               subPath: flow_storage
             {{ end }}
             {{- if .Values.ssh.known_hosts }}
-            - name: sshdir
+            - name: git-key-fixed
               mountPath: /home/nifi/.ssh
-              readOnly: true
+              readOnly: false
             {{- end }}
             {{- if .Values.flowProvider.git.enabled }}
             {{- if .Values.flowProvider.git.config.enabled }}
@@ -130,7 +133,7 @@ spec:
             {{- end }}
             - name: git-key-fixed
               mountPath: /ssh
-              readOnly: true
+              readOnly: false
             {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

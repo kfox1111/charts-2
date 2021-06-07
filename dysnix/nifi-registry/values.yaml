@@ -130,10 +130,10 @@ extraEnvs: []
 ssh:
   # Overrides for git over SSH. If you use your own git server, you
   # will likely need to provide a host key for it in this field.
-  known_hosts: ""
-  config: ""
-    # specify the config which would go in /home/nifi/.ssh/config file
-    # for e.g.
+  known_hosts: |
+    github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==
+  # specify the config which would go in /home/nifi/.ssh/config file
+  # for e.g.
   # config: |
   #   Host github.com
   #   ProxyCommand socat STDIO PROXY:<proxyIP>:%h:%p,proxyport=<proxyPort>,proxyauth=<username:password>
@@ -141,3 +141,5 @@ ssh:
   #   Hostname ssh.github.com
   #   Port 443
   #   IdentityFile /etc/fluxd/ssh/identity
+  config: |
+    Host github.com
