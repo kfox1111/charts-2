@@ -35,7 +35,16 @@ spec:
             - sh
             - -cex
             - |
-              cp --dereference /sshdir/known_hosts /sshdir/config /ssh-key/id_rsa /root/.ssh
+              if [ -d /sshdir ]
+              then
+                cp --dereference --verbose /sshdir/* /root/.ssh
+                chmod -v 600 /root/.ssh/*
+              fi
+              if [ -d /ssh-key ]
+              then
+                cp --dereference --verbose /ssh-key/* /root/.ssh
+                chmod -v 600 /root/.ssh/*
+              fi
               git clone $(NIFI_REGISTRY_GIT_URL) "/tmp/flow_storage" || git -C "/tmp/flow_storage" pull
 
               chown -R 1000:1000 /tmp/flow_storage /root/.ssh
@@ -60,8 +69,10 @@ spec:
             - name: git-key
               mountPath: /ssh-key
               readOnly: true
+            {{- if .Values.ssh.known_hosts }}
             - name: git-key-fixed
               mountPath: /root/.ssh
+            {{- end }}
         {{- end }}
         {{- if .Values.persistence.enabled }}
         - name: take-data-dir-ownership
@@ -131,9 +142,11 @@ spec:
               subPath: gitconfig
               readOnly: true
             {{- end }}
+            {{- if .Values.ssh.known_hosts }}
             - name: git-key-fixed
               mountPath: /ssh
               readOnly: false
+            {{- end }}
             {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
